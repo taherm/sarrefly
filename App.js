@@ -13,8 +13,11 @@ import { Header, Tile, Divider, Button } from "react-native-elements";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import "@expo/vector-icons";
 import Hr from "react-native-hr-component";
+import { Rootstack } from "./components/Navigator";
+import { createDrawerNavigator } from "react-navigation";
 
-export default class App extends Component {
+import FormScreen from "./components/FormScreen";
+export class HomeScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
@@ -22,7 +25,7 @@ export default class App extends Component {
           rightComponent={{
             icon: "menu",
             color: "#fff",
-            onPress: () => alert("ea")
+            onPress: () => this.props.navigation.openDrawer()
           }}
           centerComponent={{ text: "صرفلي", style: { color: "#fff" } }}
           leftComponent={{ icon: "home", color: "#fff" }}
@@ -31,7 +34,9 @@ export default class App extends Component {
         <Grid style={{ paddingTop: 20, paddingBottom: 80 }}>
           <Row style={{ height: 150 }}>
             <Col style={{ paddingHorizontal: 20 }}>
-              <TouchableOpacity onPress={this._onPressButton}>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.openDrawer()}
+              >
                 <ImageBackground
                   source={require("./assets/payment.png")}
                   style={{ width: 150, height: 150 }}
@@ -113,3 +118,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#ecf0f1"
   }
 });
+
+export const RootStack = createDrawerNavigator(
+  {
+    Home: HomeScreen,
+    Form: FormScreen
+  },
+  {
+    initialRouteName: "Home"
+  }
+);
+
+export default class App extends React.Component {
+  render() {
+    return <RootStack />;
+  }
+}
