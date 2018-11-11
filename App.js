@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   Image,
   Text,
-  ImageBackground
+  ImageBackground,
+  I18nManager
 } from "react-native";
 import { Constants } from "expo";
 import { Header, Tile, Divider, Button } from "react-native-elements";
@@ -14,10 +15,15 @@ import { Col, Row, Grid } from "react-native-easy-grid";
 import "@expo/vector-icons";
 import Hr from "react-native-hr-component";
 import { Rootstack } from "./components/Navigator";
-import { createDrawerNavigator } from "react-navigation";
+import { createDrawerNavigator, createStackNavigator } from "react-navigation";
+import Maps from "./components/Maps";
 
 import FormScreen from "./components/FormScreen";
 export class HomeScreen extends Component {
+  constructor(props) {
+    super(props);
+    I18nManager.forceRTL(true);
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -27,7 +33,10 @@ export class HomeScreen extends Component {
             color: "#fff",
             onPress: () => this.props.navigation.openDrawer()
           }}
-          centerComponent={{ text: "صرفلي", style: { color: "#fff" } }}
+          centerComponent={{
+            text: "صرفلي",
+            style: { color: "#fff", fontWeight: "bold", fontSize: 20 }
+          }}
           leftComponent={{ icon: "home", color: "#fff" }}
           backgroundColor="#37A8D1"
         />
@@ -35,7 +44,20 @@ export class HomeScreen extends Component {
           <Row style={{ height: 150 }}>
             <Col style={{ paddingHorizontal: 20 }}>
               <TouchableOpacity
-                onPress={() => this.props.navigation.openDrawer()}
+                onPress={() => this.props.navigation.navigate("Form")}
+              >
+                <ImageBackground
+                  source={require("./assets/wu.png")}
+                  style={{ width: "100%", height: "100%" }}
+                />
+                <Text style={{ textAlign: "center", fontWeight: "bold" }}>
+                  Western Union
+                </Text>
+              </TouchableOpacity>
+            </Col>
+            <Col style={{ paddingHorizontal: 20 }}>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.navigate("Form")}
               >
                 <ImageBackground
                   source={require("./assets/payment.png")}
@@ -46,21 +68,12 @@ export class HomeScreen extends Component {
                 </Text>
               </TouchableOpacity>
             </Col>
-            <Col style={{ paddingHorizontal: 20 }}>
-              <TouchableOpacity onPress={this._onPressButton}>
-                <ImageBackground
-                  source={require("./assets/wu.png")}
-                  style={{ width: "100%", height: "100%" }}
-                />
-                <Text style={{ textAlign: "center", fontWeight: "bold" }}>
-                  Western Union
-                </Text>
-              </TouchableOpacity>
-            </Col>
           </Row>
           <Row style={{ height: 130, paddingTop: 20 }}>
             <Col style={{ paddingHorizontal: 20 }}>
-              <TouchableOpacity onPress={this._onPressButton}>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.navigate("Form")}
+              >
                 <ImageBackground
                   source={require("./assets/dollar.png")}
                   style={{ width: 130, height: 130 }}
@@ -77,32 +90,35 @@ export class HomeScreen extends Component {
 
         <Grid style={{ paddingTop: 20 }}>
           <Row style={{ height: 100, paddingHorizontal: 20 }}>
-            <Col style={{ backgroundColor: "grey" }} style={{ width: 140 }}>
+            <Col style={{ width: 240 }}>
+              <Text style={{ width: 140 }}>Some Text</Text>
+
+              <Text style={{ fontWeight: "bold", width: 140 }}>
+                Some bold Text
+              </Text>
+            </Col>
+            <Col>
               <Button
                 raised
                 title="BUTTON"
                 backgroundColor="#37A8D1"
                 width="2"
+                onPress={() => {
+                  this.props.navigation.navigate("Map");
+                }}
               />
-            </Col>
-            <Col style={{ width: 240 }}>
-              <Text style={{ textAlign: "right" }}>Some Text</Text>
-
-              <Text style={{ textAlign: "right", fontWeight: "bold" }}>
-                Some bold Text
-              </Text>
             </Col>
           </Row>
           <Row style={{ height: 100, paddingHorizontal: 20 }}>
-            <Col style={{ backgroundColor: "grey" }} style={{ width: 140 }}>
-              <Button raised title="BUTTON" backgroundColor="black" width="2" />
-            </Col>
             <Col style={{ width: 240 }}>
-              <Text style={{ textAlign: "right" }}>Some Text</Text>
+              <Text style={{ width: 140 }}>Some Text</Text>
 
-              <Text style={{ textAlign: "right", fontWeight: "bold" }}>
+              <Text style={{ fontWeight: "bold", width: 140 }}>
                 Some bold Text
               </Text>
+            </Col>
+            <Col>
+              <Button raised title="BUTTON" backgroundColor="black" width="2" />
             </Col>
           </Row>
         </Grid>
@@ -121,7 +137,15 @@ const styles = StyleSheet.create({
 
 export const RootStack = createDrawerNavigator(
   {
-    Home: HomeScreen,
+    Home: {
+      screen: HomeScreen
+    },
+    Map: {
+      screen: Maps,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
     Form: FormScreen
   },
   {

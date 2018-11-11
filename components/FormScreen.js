@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import { View, Text, Button } from "react-native";
-import { Header } from "react-native-elements";
+import { View, Text } from "react-native";
+import { Header, Button } from "react-native-elements";
+
+import RadioGroup from "react-native-radio-buttons-group";
 
 import {
   Container,
@@ -12,11 +14,37 @@ import {
   Icon,
   Right
 } from "native-base";
+import { bold } from "ansi-colors";
 class FormScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = { selected: undefined };
+    this.state = {
+      selected: undefined,
+      data: [
+        {
+          label: "Default value is same as label"
+        },
+        {
+          label: "Value is different",
+          value: "I'm not same as label"
+        },
+        {
+          label: "Color",
+          color: "green"
+        },
+        {
+          disabled: true,
+          label: "Disabled"
+        },
+        {
+          label: "Size",
+          size: 32
+        }
+      ]
+    };
   }
+
+  onPress = data => this.setState({ data });
 
   static navigationOptions = {
     headerTitle: "form ",
@@ -34,6 +62,10 @@ class FormScreen extends Component {
     });
   }
   render() {
+    let selectedButton = this.state.data.find(e => e.selected == true);
+    selectedButton = selectedButton
+      ? selectedButton.value
+      : this.state.data[0].label;
     return (
       <View>
         <Header
@@ -50,10 +82,10 @@ class FormScreen extends Component {
           }}
           backgroundColor="#37A8D1"
         />
-        <Text style={{ textAlign: "right", fontWeight: "bold" }}>
+        <Text style={{ fontWeight: "bold", textAlign: "left" }}>
           Some Bold Text
         </Text>
-        <Text style={{ textAlign: "right", fontWeight: "bold" }}>
+        <Text style={{ fontWeight: "bold", textAlign: "left" }}>
           Some Bold Text
         </Text>
         <Form>
@@ -84,7 +116,27 @@ class FormScreen extends Component {
             <Picker.Item label="Credit Card" value="key3" />
             <Picker.Item label="Net Banking" value="key4" />
           </Picker>
+          <Text style={{ fontWeight: "bold", textAlign: "left" }}>
+            Some Bold Text
+          </Text>
+          <Item>
+            <Input placeholder="Name" style={{ textAlign: "right" }} />
+          </Item>
+          <RadioGroup
+            style={{ alignContent: "flex-end" }}
+            radioButtons={this.state.data}
+            onPress={this.onPress}
+          />
         </Form>
+        <Button
+          title="Click Me!"
+          buttonStyle={{
+            backgroundColor: "#37A8D1",
+            borderColor: "transparent",
+            borderWidth: 0,
+            borderRadius: 5
+          }}
+        />
       </View>
     );
   }
