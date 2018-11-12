@@ -70,15 +70,15 @@ class FormScreen extends Component {
       <View>
         <Header
           rightComponent={{
-            icon: "menu",
-            color: "#fff",
-            onPress: () => this.props.navigation.openDrawer()
-          }}
-          centerComponent={{ text: "Form WU", style: { color: "#fff" } }}
-          leftComponent={{
             icon: "keyboard-arrow-left",
             color: "#fff",
             onPress: () => this.props.navigation.goBack()
+          }}
+          centerComponent={{ text: "Form WU", style: { color: "#fff" } }}
+          leftComponent={{
+            icon: "menu",
+            color: "#fff",
+            onPress: () => this.props.navigation.openDrawer()
           }}
           backgroundColor="#37A8D1"
         />
@@ -123,7 +123,8 @@ class FormScreen extends Component {
             <Input placeholder="Name" style={{ textAlign: "right" }} />
           </Item>
           <RadioGroup
-            style={{ alignContent: "flex-end" }}
+            labelStyle={{ position: "absolute", left: -35 }}
+            labelHorizontal={true}
             radioButtons={this.state.data}
             onPress={this.onPress}
           />

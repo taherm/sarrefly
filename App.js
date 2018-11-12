@@ -17,6 +17,7 @@ import Hr from "react-native-hr-component";
 import { Rootstack } from "./components/Navigator";
 import { createDrawerNavigator, createStackNavigator } from "react-navigation";
 import Maps from "./components/Maps";
+import SecondScreen from "./components/SecondScreen";
 
 import FormScreen from "./components/FormScreen";
 export class HomeScreen extends Component {
@@ -28,16 +29,16 @@ export class HomeScreen extends Component {
     return (
       <View style={styles.container}>
         <Header
-          rightComponent={{
-            icon: "menu",
-            color: "#fff",
-            onPress: () => this.props.navigation.openDrawer()
-          }}
+          rightComponent={{ icon: "home", color: "#fff" }}
           centerComponent={{
             text: "صرفلي",
             style: { color: "#fff", fontWeight: "bold", fontSize: 20 }
           }}
-          leftComponent={{ icon: "home", color: "#fff" }}
+          leftComponent={{
+            icon: "menu",
+            color: "#fff",
+            onPress: () => this.props.navigation.openDrawer()
+          }}
           backgroundColor="#37A8D1"
         />
         <Grid style={{ paddingTop: 20, paddingBottom: 80 }}>
@@ -99,8 +100,9 @@ export class HomeScreen extends Component {
             </Col>
             <Col>
               <Button
+                rounded
                 raised
-                title="BUTTON"
+                title="Test"
                 backgroundColor="#37A8D1"
                 width="2"
                 onPress={() => {
@@ -118,7 +120,16 @@ export class HomeScreen extends Component {
               </Text>
             </Col>
             <Col>
-              <Button raised title="BUTTON" backgroundColor="black" width="2" />
+              <Button
+                rounded
+                raised
+                title="Test"
+                backgroundColor="black"
+                width="2"
+                onPress={() => {
+                  this.props.navigation.navigate("Second");
+                }}
+              />
             </Col>
           </Row>
         </Grid>
@@ -142,6 +153,12 @@ export const RootStack = createDrawerNavigator(
     },
     Map: {
       screen: Maps,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
+    Second: {
+      screen: SecondScreen,
       navigationOptions: {
         drawerLabel: () => null
       }
