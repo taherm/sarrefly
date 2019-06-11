@@ -1,138 +1,78 @@
 import React, { Component } from "react";
+
 import {
   View,
   StyleSheet,
-  ScrollView,
+  TextInput,
+  I18nManager,
   TouchableOpacity,
-  Image,
-  Text,
   ImageBackground,
-  I18nManager
+  Button,
+  Text
 } from "react-native";
 import { Constants } from "expo";
-import { Header, Tile, Divider, Button } from "react-native-elements";
-import { Col, Row, Grid } from "react-native-easy-grid";
 import "@expo/vector-icons";
-import Hr from "react-native-hr-component";
-import { Rootstack } from "./components/Navigator";
-import { createDrawerNavigator, createStackNavigator } from "react-navigation";
-import Maps from "./components/Maps";
-import SecondScreen from "./components/SecondScreen";
+import I18n from "ex-react-native-i18n";
 
-import FormScreen from "./components/FormScreen";
-export class HomeScreen extends Component {
+import { createAppContainer, createStackNavigator } from "react-navigation";
+import Maps from "./components/Maps";
+import CashDelivered from "./components/CashDelivered";
+import axios from "react-native-axios";
+import Home from "./components/Home";
+import WU from "./components/WU";
+import Cash from "./components/Cash";
+import Register from "./components/Register";
+import Payment from "./components/Payment";
+import Exchange from "./components/Exchange";
+import ExchangeForm from "./components/ExchangeForm";
+import Logout from "./components/Logout";
+import Login from "./components/Login";
+import { AsyncStorage } from "react-native";
+
+export class Language extends Component {
   constructor(props) {
     super(props);
     I18nManager.forceRTL(true);
+    this.state = {
+      username: "",
+      password: "",
+      user_id: "",
+      errorText: "",
+      token: ""
+    };
   }
+
+  componentWillMount() {
+    I18n.initAsync();
+
+    _storeData = async () => {
+      try {
+        AsyncStorage.setItem("lang", "en");
+      } catch (error) {
+        alert("error in async storage");
+      }
+    };
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        <Header
-          rightComponent={{ icon: "home", color: "#fff" }}
-          centerComponent={{
-            text: "صرفلي",
-            style: { color: "#fff", fontWeight: "bold", fontSize: 20 }
+        <TouchableOpacity
+          onPress={() => {
+            I18n.locale = "ar";
+            this.props.navigation.navigate("Login");
           }}
-          leftComponent={{
-            icon: "menu",
-            color: "#fff",
-            onPress: () => this.props.navigation.openDrawer()
+        >
+          <Text style={{ fontSize: 31 }}> العربية </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            I18n.locale = "en";
+            this.props.navigation.navigate("Login");
           }}
-          backgroundColor="#37A8D1"
-        />
-        <Grid style={{ paddingTop: 20, paddingBottom: 80 }}>
-          <Row style={{ height: 150 }}>
-            <Col style={{ paddingHorizontal: 20 }}>
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate("Form")}
-              >
-                <ImageBackground
-                  source={require("./assets/wu.png")}
-                  style={{ width: "100%", height: "100%" }}
-                />
-                <Text style={{ textAlign: "center", fontWeight: "bold" }}>
-                  Western Union
-                </Text>
-              </TouchableOpacity>
-            </Col>
-            <Col style={{ paddingHorizontal: 20 }}>
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate("Form")}
-              >
-                <ImageBackground
-                  source={require("./assets/payment.png")}
-                  style={{ width: 150, height: 150 }}
-                />
-                <Text style={{ textAlign: "center", fontWeight: "bold" }}>
-                  Cash
-                </Text>
-              </TouchableOpacity>
-            </Col>
-          </Row>
-          <Row style={{ height: 130, paddingTop: 20 }}>
-            <Col style={{ paddingHorizontal: 20 }}>
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate("Form")}
-              >
-                <ImageBackground
-                  source={require("./assets/dollar.png")}
-                  style={{ width: 130, height: 130 }}
-                />
-                <Text style={{ textAlign: "center", fontWeight: "bold" }}>
-                  Money Exchange
-                </Text>
-              </TouchableOpacity>
-            </Col>
-            <Col />
-          </Row>
-        </Grid>
-        <Hr lineColor="black" width={1} text="Dummy Text" />
-
-        <Grid style={{ paddingTop: 20 }}>
-          <Row style={{ height: 100, paddingHorizontal: 20 }}>
-            <Col style={{ width: 240 }}>
-              <Text style={{ width: 140 }}>Some Text</Text>
-
-              <Text style={{ fontWeight: "bold", width: 140 }}>
-                Some bold Text
-              </Text>
-            </Col>
-            <Col>
-              <Button
-                rounded
-                raised
-                title="Test"
-                backgroundColor="#37A8D1"
-                width="2"
-                onPress={() => {
-                  this.props.navigation.navigate("Map");
-                }}
-              />
-            </Col>
-          </Row>
-          <Row style={{ height: 100, paddingHorizontal: 20 }}>
-            <Col style={{ width: 240 }}>
-              <Text style={{ width: 140 }}>Some Text</Text>
-
-              <Text style={{ fontWeight: "bold", width: 140 }}>
-                Some bold Text
-              </Text>
-            </Col>
-            <Col>
-              <Button
-                rounded
-                raised
-                title="Test"
-                backgroundColor="black"
-                width="2"
-                onPress={() => {
-                  this.props.navigation.navigate("Second");
-                }}
-              />
-            </Col>
-          </Row>
-        </Grid>
+        >
+          <Text style={{ fontSize: 31 }}> English </Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -141,15 +81,47 @@ export class HomeScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Constants.statusBarHeight,
-    backgroundColor: "#ecf0f1"
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "space-around",
+    marginTop: 20
   }
 });
+I18n.fallbacks = true;
+//I18n.locale = "fr";
+I18n.translations = {
+  en: require("./en.json"),
+  ar: require("./ar.json")
+};
 
-export const RootStack = createDrawerNavigator(
+export const RootStack = createStackNavigator(
   {
     Home: {
-      screen: HomeScreen
+      screen: Home,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
+    Language: {
+      screen: Language,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
+    Login: {
+      screen: Login,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
+    Logout: {
+      screen: Logout
+    },
+    Register: {
+      screen: Register,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
     },
     Map: {
       screen: Maps,
@@ -157,21 +129,57 @@ export const RootStack = createDrawerNavigator(
         drawerLabel: () => null
       }
     },
-    Second: {
-      screen: SecondScreen,
+    CashDelivered: {
+      screen: CashDelivered,
       navigationOptions: {
         drawerLabel: () => null
       }
     },
-    Form: FormScreen
+    Cash: {
+      screen: Cash,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
+    Payment: {
+      screen: Payment,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
+    WU: {
+      screen: WU,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
+    Exchange: {
+      screen: Exchange,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    },
+    ExchangeForm: {
+      screen: ExchangeForm,
+      navigationOptions: {
+        drawerLabel: () => null
+      }
+    }
   },
   {
-    initialRouteName: "Home"
-  }
+    initialRouteName: "Language",
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: "#37A8D1"
+      },
+      headerTintColor: "#fff",
+      headerTitleStyle: {
+        fontWeight: "bold"
+      }
+    }
+    //contentComponent: drawerContentComponents
+  },
+  {}
 );
-
-export default class App extends React.Component {
-  render() {
-    return <RootStack />;
-  }
-}
+const App = createAppContainer(RootStack);
+export default App;

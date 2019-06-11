@@ -1,14 +1,14 @@
 {
   "expo": {
     "name": "sarrefly",
-    "description": "This project is really great.",
+    "description": "Get Cash in Hand!",
     "slug": "sarrefly",
     "privacy": "public",
     "sdkVersion": "31.0.0",
     "platforms": ["ios", "android"],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/app_icon.png",
     "splash": {
       "image": "./assets/sarrefly.png",
       "resizeMode": "contain",

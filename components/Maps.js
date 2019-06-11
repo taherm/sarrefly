@@ -1,26 +1,39 @@
-import React, { Component } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import MapViewDirections from "react-native-maps-directions";
 import MapView from "react-native-maps";
-import { Col, Row, Grid } from "react-native-easy-grid";
+//const origin = { latitude: 29.3770704, longitude: 47.9847947 };
+//const destination = { latitude: 29.389137, longitude: 47.9809055 };
+const GOOGLE_MAPS_APIKEY = "AIzaSyADsl5lDKDlF_INIJx2v_-Ke6ottuLDssQ";
+import Pusher from "pusher-js/react-native";
 
-import { Constants } from "expo";
-import { Header, Button } from "react-native-elements";
-
-class Maps extends Component {
+export default class Maps extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
-  }
+    const { navigation } = this.props;
+    this.state = {
+      origin: { latitude: 29.3770704, longitude: 47.9847947 },
+      destination: {
+        latitude: navigation.getParam("latitude", 29.3770704),
+        longitude: navigation.getParam("longitude", 47.9847947)
+      }
+    };
 
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher("71d738b559f95f3c22c2", {
+      cluster: "ap1",
+      forceTLS: true
+    });
+
+    var channel = pusher.subscribe("my-channel");
+    channel.bind("my-event", data => {
+      this.setState({ origin: data });
+    });
+  }
   render() {
     return (
-      <View
-        style={{
-          flex: 1,
-          paddingTop: Constants.statusBarHeight,
-          backgroundColor: "#ecf0f1"
-        }}
-      >
+      <View style={styles.container}>
         <MapView
           style={{ ...StyleSheet.absoluteFillObject }}
           initialRegion={{
@@ -29,57 +42,25 @@ class Maps extends Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421
           }}
-        />
-        <Header
-          rightComponent={{
-            icon: "menu",
-            color: "#fff",
-            onPress: () => this.props.navigation.openDrawer()
-          }}
-          centerComponent={{
-            text: "Map",
-            style: { color: "#fff", fontWeight: "bold", fontSize: 20 }
-          }}
-          leftComponent={{
-            icon: "keyboard-arrow-left",
-            color: "#fff",
-            onPress: () => this.props.navigation.goBack()
-          }}
-          backgroundColor="#37A8D1"
-        />
-        <Grid style={{ paddingTop: 30, paddingHorizontal: 30 }}>
-          <Row
-            style={{
-              paddingHorizontal: 30,
-
-              backgroundColor: "#FCFCFC",
-              height: 80
-            }}
-          >
-            <Col style={{ width: 240 }}>
-              <Text style={{ width: 140 }}>Some Text</Text>
-              <Text style={{ width: 140, fontWeight: "bold" }}>
-                Some Bold Text
-              </Text>
-            </Col>
-            <Col>
-              <Text style={{ color: "#37A8D1", fontSize: 50 }}>5</Text>
-              <Text>دفاق</Text>
-            </Col>
-          </Row>
-        </Grid>
+        >
+          <MapView.Marker coordinate={this.state.origin} />
+          <MapView.Marker coordinate={this.state.destination} />
+          <MapViewDirections
+            origin={this.state.origin}
+            destination={this.state.destination}
+            apikey={GOOGLE_MAPS_APIKEY}
+          />
+        </MapView>
       </View>
     );
   }
 }
+
 const styles = StyleSheet.create({
-  map: {
+  container: {
     flex: 1,
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
   }
 });
-export default Maps;

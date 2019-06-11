@@ -1,0 +1,217 @@
+import React, { Component } from "react";
+import RadioForm, {
+  RadioButton,
+  RadioButtonInput,
+  RadioButtonLabel
+} from "react-native-simple-radio-button";
+import { Form, Item, Input, Label, Picker, Icon } from "native-base";
+import axios from "react-native-axios";
+import { View, Text, StyleSheet, ScrollView, TextInput } from "react-native";
+import { Header, Button, FormLabel, FormInput } from "react-native-elements";
+
+import RadioGroup from "react-native-radio-buttons-group";
+
+import { bold, black } from "ansi-colors";
+
+class ExchangeForm extends Component {
+  constructor(props) {
+    super(props);
+    const { navigation } = this.props;
+    this.state = {
+      country: navigation.getParam("country", "no-country"),
+      value: 0,
+      radioprops: [
+        {
+          label: "موافق على سياسة الاستخدام مع خصم 2 دك على العملية",
+          value: 1
+        },
+        { label: "دفع سريع 5 دك", value: 2 }
+      ],
+      radioprops2: [{ label: "خزن البيانات", value: 0 }],
+      radio_value: "",
+      radiovalue2: "",
+      receiver_address: "",
+      receiver_mobile: "",
+      receiver_name: "",
+      amount: "",
+      civil_id: "",
+      order_type: navigation.getParam("order_type", "no_order_type"),
+      user_id: navigation.getParam("user_id", ""),
+      errorText: "",
+      converted_amount: navigation.getParam("converted_amount", "no-amount")
+    };
+  }
+
+  onPress = data => this.setState({ data });
+
+  static navigationOptions = {
+    headerTitle: "form ",
+    headerRight: (
+      <Button
+        onPress={() => alert("This is a button!")}
+        title="Info"
+        color="#fff"
+      />
+    )
+  };
+  onValueChange(value: string) {
+    this.setState({
+      country: value
+    });
+  }
+
+  handleClick() {
+    if (this.state.receiver_name == "") {
+      this.setState({ errorText: "Please Enter Receiver Name!" });
+    } else if (this.state.receiver_mobile == "") {
+      this.setState({ errorText: "Please Enter Receiver Mobile" });
+    } else if (this.state.receiver_mobile.length > 8) {
+      this.setState({ errorText: "Enter only 8 Digits for Mobile" });
+    } else if (this.state.civil_id == "") {
+      this.setState({ errorText: "Please Enter Civil ID!" });
+    } else if (this.state.civil_id.length > 12) {
+      this.setState({ errorText: "Enter only 12 Digits for Civil ID" });
+    } else if (this.state.receiver_address == "") {
+      this.setState({ errorText: "Please Enter Receiver Address!" });
+    } else if (this.state.country == "") {
+      this.setState({ errorText: "Please Enter Country!" });
+    } else {
+      try {
+        axios
+          .post("http://192.168.1.100:8080/sarrefly_api/public/api/orders", {
+            user_id: this.state.user_id,
+            receiver_name: this.state.receiver_name,
+            receiver_mobile: this.state.receiver_mobile,
+            receiver_address: this.state.receiver_address,
+            amount: this.state.converted_amount,
+            country: this.state.country,
+            civil_id: this.state.civil_id,
+            order_type: this.state.order_type,
+            status: "pending"
+          })
+          .then(response => {
+            if (response.status == "201") {
+              alert("Order Placed Successfully.");
+              this.props.navigation.navigate("Home", {
+                user_id: this.state.user_id
+              });
+            } else {
+              alert("Error Occurred!");
+            }
+          });
+      } catch (exception) {
+        alert(exception);
+      }
+    }
+  }
+  render() {
+    return (
+      <View style={{ flex: 1 }}>
+        <Header
+          rightComponent={{
+            icon: "keyboard-arrow-left",
+            color: "#fff",
+            onPress: () =>
+              this.props.navigation.navigate("Home", {
+                user_id: this.state.user_id
+              })
+          }}
+          centerComponent={{
+            text: "  صرف عملات",
+            style: { color: "#fff", fontSize: 16 }
+          }}
+          leftComponent={{
+            icon: "menu",
+            color: "#fff",
+            onPress: () => this.props.navigation.openDrawer()
+          }}
+          backgroundColor="#37A8D1"
+        />
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+            المبلغ : {this.state.converted_amount}
+          </FormLabel>
+          <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+            العملة : {this.state.country}
+          </FormLabel>
+          <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+            بيانات المستلم ( بيانات محفوظة)
+          </FormLabel>
+          <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+            {" "}
+            بيانات جديدة
+          </FormLabel>
+
+          <Form>
+            <Item floatingLabel>
+              <Label style={{ textAlign: "left" }}>اسم المستلم</Label>
+              <Input
+                onChangeText={receiver_name => this.setState({ receiver_name })}
+              />
+            </Item>
+            <Item floatingLabel>
+              <Label style={{ textAlign: "left" }}>رقم الهاتف</Label>
+              <Input
+                onChangeText={receiver_mobile =>
+                  this.setState({ receiver_mobile })
+                }
+                keyboardType="number-pad"
+              />
+            </Item>
+            <Item floatingLabel>
+              <Label style={{ textAlign: "left" }}>الرقم المدني</Label>
+              <Input
+                onChangeText={civil_id => this.setState({ civil_id })}
+                keyboardType="number-pad"
+              />
+            </Item>
+            <Item floatingLabel>
+              <Label style={{ textAlign: "left" }}>عنوان المستلم</Label>
+              <Input
+                onChangeText={receiver_address =>
+                  this.setState({ receiver_address })
+                }
+              />
+            </Item>
+          </Form>
+
+          <RadioForm
+            radio_props={this.state.radioprops2}
+            initial={1}
+            onPress={radiovalue2 => {
+              this.setState({ radiovalue2: "ok" });
+            }}
+          />
+
+          <RadioForm
+            radio_props={this.state.radioprops}
+            initial={0}
+            onPress={radiovalue => {
+              this.setState({ radiovalue: radiovalue });
+            }}
+          />
+          <Button
+            title="ادفع الان"
+            buttonStyle={{
+              backgroundColor: "#37A8D1",
+              borderColor: "transparent",
+              borderWidth: 0,
+              borderRadius: 5
+            }}
+            onPress={() => this.handleClick()}
+          />
+
+          <Text style={{ textAlign: "center", color: "red", paddingTop: 10 }}>
+            {this.state.errorText}
+          </Text>
+        </ScrollView>
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  contentContainer: {}
+});
+
+export default ExchangeForm;
