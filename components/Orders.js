@@ -30,16 +30,13 @@ class Orders extends Component {
     };
     this.props.navigation.addListener("willFocus", payload => {
       axios
-        .get(
-          URL +
-            "/orders/" +
-            this.props.user_id +
-            "?api_token=" +
-            this.props.token
-        )
+        .post(URL + "/orders/" + this.props.user_id, {
+          api_token: this.props.token
+        })
         .then(response => {
+          // console.log(response);
           if (response.data) {
-            //console.log("test id:-" + response.data.id);
+            // console.log("test id:-" + response.data.id);
             this.setState({
               initialArr: response.data
             });
@@ -119,8 +116,9 @@ class Orders extends Component {
                       <Button
                         rounded
                         raised
-                        title={I18n.t("ModeWU")}
-                        backgroundColor="yellow"
+                        style={{}}
+                        title={I18n.t("WU")}
+                        backgroundColor="gold"
                         width="2"
                         onPress={() => {
                           this.props.navigation.navigate("CashDelivered", {

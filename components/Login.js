@@ -42,14 +42,12 @@ export default class Login extends Component {
     } else {
       try {
         axios
-          .get(
-            URL +
-              "/user?name=" +
-              this.state.username +
-              "&password=" +
-              this.state.password
-          )
+          .post(URL + "/user", {
+            name: this.state.username,
+            password: this.state.password
+          })
           .then(response => {
+            // console.log(response);
             if (response.data) {
               this.setState({
                 user_id: response.data.id,

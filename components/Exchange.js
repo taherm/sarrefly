@@ -34,7 +34,9 @@ class Exchange extends Component {
     };
 
     axios
-      .get(URL + "/rates/" + "?api_token=" + this.state.token)
+      .post(URL + "/rates", {
+        api_token: this.state.token
+      })
       .then(response => {
         if (response.data) {
           this.setState({
@@ -51,9 +53,10 @@ class Exchange extends Component {
   async onValueChange(country) {
     try {
       axios
-        .get(
-          URL + "/rate?country=" + country + "&api_token=" + this.state.token
-        )
+        .post(URL + "/rate", {
+          country: country,
+          api_token: this.state.token
+        })
         .then(response => {
           // alert("hello");
           if (response.status == "200") {
@@ -133,6 +136,7 @@ class Exchange extends Component {
                       this.Calculate(amount);
                     }}
                     keyboardType="number-pad"
+                    maxLength={4}
                     onFocus={() => {
                       if (this.state.currency == "") {
                         alert("Please Select Currency First!");

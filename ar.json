@@ -28,6 +28,13 @@
   "FormSaveData": "خزن بيانات المستفيد",
   "SavedBeneficiaryData": "اختر مستفيد تم حفظة مسبقا",
   "NewBeneficiary": " ادخل بيانات مستفيد جديد",
-  "FormMessage": "Sarrefly is not responsible for any mistakes made in inputting names etc.",
-  "MyOrder": "طلبي"
+  "FormMessage": "تطبيق صرفلي غير مسؤول عن اي اخطاء باسم المستلم او اي مدخلات اخرى",
+  "MyOrder": "طلبي",
+  "SaveUserDetails": "الإحتفاظ بالبيانات ",
+  "UserOrders": "متابعة الطلبات",
+  "SetDeliveryLocation": "إختر موقع التوصيل",
+  "Yes": "",
+  "No": "",
+  "WU": "ويستيرن يونيون",
+  "SelectCountry": "حدد الدولة"
 }

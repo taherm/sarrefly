@@ -29,5 +29,12 @@
   "SavedBeneficiaryData": "Beneficiary Saved Data",
   "NewBeneficiary": "New Beneficiary",
   "FormMessage": "Sarrefly is not responsible for any mistakes made in inputting names etc.",
-  "MyOrder": "My Order"
+  "MyOrder": "My Order",
+  "SaveUserDetails": "Save User Details",
+  "UserOrders": "Your Orders",
+  "SetDeliveryLocation": "Set Delivery Location",
+  "Yes": "Yes",
+  "No": "No",
+  "WU": "WU",
+  "SelectCountry": "Select Country"
 }

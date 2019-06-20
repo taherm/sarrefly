@@ -12,6 +12,7 @@ import { Form, Item, Input, Label, Picker, Icon } from "native-base";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { GOOGLE_KEY } from "./constant";
 import axios from "react-native-axios";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
   View,
   Text,
@@ -47,7 +48,10 @@ class ExchangeForm extends Component {
         },
         { label: I18n.t("Form5Kd"), value: 5 }
       ],
-      saveProps: [{ label: "No", value: 0 }, { label: "Yes", value: 1 }],
+      saveProps: [
+        { label: I18n.t("No"), value: 0 },
+        { label: I18n.t("Yes"), value: 1 }
+      ],
       charges: 2,
       saveSelected: 0,
       receiver_address: "",
@@ -63,17 +67,15 @@ class ExchangeForm extends Component {
       radio_status: "",
       token: navigation.getParam("token", ""),
       isLoaded: 0,
-      converted_amount: navigation.getParam("converted_amount", "no-amount")
+      converted_amount: navigation.getParam("converted_amount", "no-amount"),
+      errorMobile: "",
+      errorCivilID: ""
     };
 
     axios
-      .get(
-        URL +
-          "/saved_orders/" +
-          this.state.user_id +
-          "?api_token=" +
-          this.state.token
-      )
+      .post(URL + "/saved_orders/" + this.state.user_id, {
+        api_token: this.state.token
+      })
       .then(response => {
         if (response.data) {
           this.setState({
@@ -90,8 +92,6 @@ class ExchangeForm extends Component {
     title: I18n.t("HomeExchange")
   });
 
-
-  
   setSavedvalues(item) {
     this.setState({ receiver_name: item.receiver_name });
     this.setState({ receiver_mobile: item.receiver_mobile });
@@ -101,25 +101,24 @@ class ExchangeForm extends Component {
     this.setState({ amount: item.amount });
   }
 
-
-
   handleClick() {
     if (this.state.receiver_name == "") {
       this.setState({ errorText: "Please Enter Receiver Name!" });
     } else if (this.state.receiver_mobile == "") {
       this.setState({ errorText: "Please Enter Receiver Mobile" });
-    } else if (this.state.receiver_mobile.length > 8) {
-      this.setState({ errorText: "Enter only 8 Digits for Mobile" });
+    } else if (this.state.receiver_mobile.length < 8) {
+      this.setState({ errorText: "Enter Minimum 8 Digits for Mobile" });
     } else if (this.state.civil_id == "") {
       this.setState({ errorText: "Please Enter Civil ID!" });
-    } else if (this.state.civil_id.length > 12) {
-      this.setState({ errorText: "Enter only 12 Digits for Civil ID" });
+    } else if (this.state.civil_id.length < 12) {
+      this.setState({ errorText: "Enter Minimum 12 Digits for Civil ID" });
     } else if (this.state.receiver_address == "") {
       this.setState({ errorText: "Please Enter Receiver Address!" });
-    }  else {
+    } else {
       try {
         axios
-          .post(URL + "/orders" + "?api_token=" + this.state.token, {
+          .post(URL + "/orders", {
+            api_token: this.state.token,
             user_id: this.state.user_id,
             receiver_name: this.state.receiver_name,
             receiver_mobile: this.state.receiver_mobile,
@@ -128,7 +127,7 @@ class ExchangeForm extends Component {
             civil_id: this.state.civil_id,
             order_type: this.state.order_type,
             status: "pending",
-             currency: this.state.currency,
+            currency: this.state.currency,
             saved: this.state.saveSelected,
             charges: this.state.charges,
             converted_amount: this.state.converted_amount
@@ -162,134 +161,166 @@ class ExchangeForm extends Component {
   }
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        {this.state.isLoaded ? (
-          <ActivityIndicator
-            style={{ flex: 1, justifyContent: "center" }}
-            size="large"
-            color="#37A8D1"
-          />
-        ) : (
-          <ScrollView contentContainerStyle={styles.contentContainer}>
-          <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
-            المبلغ : {this.state.amount}
-          </FormLabel>
-          <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
-            العملة : {this.state.currency}
-          </FormLabel>
-            <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
-              {I18n.t("SavedBeneficiaryData")}
-            </FormLabel>
-
-            <FlatList
-              horizontal
-              data={this.state.savedData}
-              showsVerticalScrollIndicator={false}
-              style={{ backgroundColor: "white" }}
-              renderItem={({ item }) => (
-                <Button
-                  title={item.receiver_name}
-                  onPress={() => this.setSavedvalues(item)}
-                />
-              )}
-              keyExtractor={item => item.id.toString()}
+      <KeyboardAwareScrollView>
+        <View style={{ flex: 1 }}>
+          {this.state.isLoaded ? (
+            <ActivityIndicator
+              style={{ flex: 1, justifyContent: "center" }}
+              size="large"
+              color="#37A8D1"
             />
-            <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
-              {I18n.t("NewBeneficiary")}
-            </FormLabel>
-            <Form>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormName")}
-                </Label>
+          ) : (
+            <ScrollView contentContainerStyle={styles.contentContainer}>
+              <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+                المبلغ : {this.state.amount}
+              </FormLabel>
+              <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+                العملة : {this.state.currency}
+              </FormLabel>
+              <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+                {I18n.t("SavedBeneficiaryData")}
+              </FormLabel>
 
-                <Input
-                  onChangeText={receiver_name =>
-                    this.setState({ receiver_name })
-                  }
-                  value={this.state.receiver_name}
-                />
-              </Item>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormMobile")}
-                </Label>
-                <Input
-                  onChangeText={receiver_mobile =>
-                    this.setState({ receiver_mobile })
-                  }
-                  value={String(this.state.receiver_mobile)}
-                  keyboardType="number-pad"
-                />
-              </Item>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormCivilID")}
-                </Label>
-                <Input
-                  onChangeText={civil_id => this.setState({ civil_id })}
-                  value={String(this.state.civil_id)}
-                  keyboardType="number-pad"
-                />
-              </Item>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormAddress")}
-                </Label>
-                <Input
-                  onChangeText={receiver_address =>
-                    this.setState({ receiver_address })
-                  }
-                  value={this.state.receiver_address}
-                />
-              </Item>
-            
-             
-            </Form>
-            <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
-              Saved User Details
-            </FormLabel>
+              <FlatList
+                horizontal
+                data={this.state.savedData}
+                showsVerticalScrollIndicator={false}
+                style={{ backgroundColor: "white" }}
+                renderItem={({ item }) => (
+                  <Button
+                    title={item.receiver_name}
+                    onPress={() => this.setSavedvalues(item)}
+                  />
+                )}
+                keyExtractor={item => item.id.toString()}
+              />
+              <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+                {I18n.t("NewBeneficiary")}
+              </FormLabel>
+              <Form>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormName")}
+                  </Label>
 
-            <RadioForm
-              radio_props={this.state.saveProps}
-              initial={0}
-              formHorizontal={true}
-              onPress={saveSelected => {
-                this.setState({ saveSelected: saveSelected }, () =>
-                  console.log(
-                    this.state.saveSelected,
-                    "this.state.saveSelected"
-                  )
-                );
-              }}
-            />
+                  <Input
+                    onChangeText={receiver_name =>
+                      this.setState({ receiver_name })
+                    }
+                    value={this.state.receiver_name}
+                  />
+                </Item>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormMobile")}
+                    <Label style={{ color: "red", fontSize: 10 }}>
+                      {this.state.errorMobile}
+                    </Label>
+                  </Label>
+                  <Input
+                    onChangeText={receiver_mobile =>
+                      this.setState({ receiver_mobile })
+                    }
+                    value={String(this.state.receiver_mobile)}
+                    keyboardType="number-pad"
+                    maxLength={8}
+                    onBlur={() => {
+                      if (this.state.receiver_mobile.length < 8) {
+                        this.setState({
+                          errorMobile: "(Minimum 8 Digits Required)"
+                        });
+                      } else {
+                        this.setState({
+                          errorMobile: ""
+                        });
+                      }
+                    }}
+                  />
+                </Item>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormCivilID")}
+                    <Label style={{ color: "red", fontSize: 10 }}>
+                      {this.state.errorCivilID}
+                    </Label>
+                  </Label>
+                  <Input
+                    onChangeText={civil_id => this.setState({ civil_id })}
+                    value={String(this.state.civil_id)}
+                    keyboardType="number-pad"
+                    maxLength={12}
+                    onBlur={() => {
+                      if (this.state.civil_id.length < 12) {
+                        this.setState({
+                          errorCivilID: "(Minimum 12 Digits Required)"
+                        });
+                      } else {
+                        this.setState({
+                          errorCivilID: ""
+                        });
+                      }
+                    }}
+                  />
+                </Item>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormAddress")}
+                  </Label>
+                  <Input
+                    onChangeText={receiver_address =>
+                      this.setState({ receiver_address })
+                    }
+                    value={this.state.receiver_address}
+                  />
+                </Item>
+              </Form>
+              <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+                {I18n.t("SaveUserDetails")}
+              </FormLabel>
 
-            <RadioForm
-              radio_props={this.state.chargesProps}
-              initial={0}
-              onPress={charges => {
-                this.setState({ charges: charges }, () =>
-                  console.log(this.state.charges)
-                );
-              }}
-            />
-            <Button
-              title={I18n.t("FormPay")}
-              buttonStyle={{
-                backgroundColor: "#37A8D1",
-                borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 5
-              }}
-              onPress={() => this.handleClick()}
-            />
+              <RadioForm
+                radio_props={this.state.saveProps}
+                initial={0}
+                formHorizontal={true}
+                onPress={saveSelected => {
+                  this.setState({ saveSelected: saveSelected }, () =>
+                    console.log(
+                      this.state.saveSelected,
+                      "this.state.saveSelected"
+                    )
+                  );
+                }}
+              />
 
-            <Text style={{ textAlign: "center", color: "red", paddingTop: 10 }}>
-              {this.state.errorText}
-            </Text>
-          </ScrollView>
-        )}
-      </View>
+              <RadioForm
+                radio_props={this.state.chargesProps}
+                initial={0}
+                onPress={charges => {
+                  this.setState({ charges: charges }, () =>
+                    console.log(this.state.charges)
+                  );
+                }}
+              />
+              <Button
+                title={I18n.t("FormPay")}
+                buttonStyle={{
+                  backgroundColor: "#37A8D1",
+                  borderColor: "transparent",
+                  borderWidth: 0,
+                  borderRadius: 5
+                }}
+                onPress={() => this.handleClick()}
+              />
+
+              <Text
+                style={{ textAlign: "center", color: "red", paddingTop: 10 }}
+              >
+                {this.state.errorText}
+              </Text>
+            </ScrollView>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
     );
   }
 }

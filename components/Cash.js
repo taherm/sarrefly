@@ -11,6 +11,7 @@ import I18n from "ex-react-native-i18n";
 import { Form, Item, Input, Label, Picker, Icon } from "native-base";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { GOOGLE_KEY } from "./constant";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import axios from "react-native-axios";
 import {
   View,
@@ -47,7 +48,10 @@ class Cash extends Component {
         },
         { label: I18n.t("Form5Kd"), value: 5 }
       ],
-      saveProps: [{ label: "No", value: 0 }, { label: "Yes", value: 1 }],
+      saveProps: [
+        { label: I18n.t("No"), value: 0 },
+        { label: I18n.t("Yes"), value: 1 }
+      ],
       charges: 2,
       saveSelected: 0,
       receiver_address: "",
@@ -65,17 +69,15 @@ class Cash extends Component {
       location_data: "",
       origin: { latitude: 29.3770704, longitude: 47.9847947 },
       location: { latitude: "", longitude: "" },
-      modalVisible: false
+      modalVisible: false,
+      errorMobile: "",
+      errorCivilID: ""
     };
 
     axios
-      .get(
-        URL +
-          "/saved_orders/" +
-          this.state.user_id +
-          "?api_token=" +
-          this.state.token
-      )
+      .post(URL + "/saved_orders/" + this.state.user_id, {
+        api_token: this.state.token
+      })
       .then(response => {
         if (response.data) {
           this.setState({
@@ -125,12 +127,12 @@ class Cash extends Component {
       this.setState({ errorText: "Please Enter Receiver Name!" });
     } else if (this.state.receiver_mobile == "") {
       this.setState({ errorText: "Please Enter Receiver Mobile" });
-    } else if (this.state.receiver_mobile.length > 8) {
-      this.setState({ errorText: "Enter only 8 Digits for Mobile" });
+    } else if (this.state.receiver_mobile.length < 8) {
+      this.setState({ errorText: "Enter Minimum 8 Digits for Mobile" });
     } else if (this.state.civil_id == "") {
       this.setState({ errorText: "Please Enter Civil ID!" });
-    } else if (this.state.civil_id.length > 12) {
-      this.setState({ errorText: "Enter only 12 Digits for Civil ID" });
+    } else if (this.state.civil_id.length < 12) {
+      this.setState({ errorText: "Enter Minimum 12 Digits for Civil ID" });
     } else if (this.state.receiver_address == "") {
       this.setState({ errorText: "Please Enter Receiver Address!" });
     } else if (this.state.amount == "") {
@@ -138,7 +140,8 @@ class Cash extends Component {
     } else {
       try {
         axios
-          .post(URL + "/orders" + "?api_token=" + this.state.token, {
+          .post(URL + "/orders", {
+            api_token: this.state.token,
             user_id: this.state.user_id,
             receiver_name: this.state.receiver_name,
             receiver_mobile: this.state.receiver_mobile,
@@ -182,221 +185,259 @@ class Cash extends Component {
   }
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        {this.state.isLoaded ? (
-          <ActivityIndicator
-            style={{ flex: 1, justifyContent: "center" }}
-            size="large"
-            color="#37A8D1"
-          />
-        ) : (
-          <ScrollView contentContainerStyle={styles.contentContainer}>
-            <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
-              {I18n.t("SavedBeneficiaryData")}
-            </FormLabel>
-
-            <FlatList
-              horizontal
-              data={this.state.savedData}
-              showsVerticalScrollIndicator={false}
-              style={{ backgroundColor: "white" }}
-              renderItem={({ item }) => (
-                <Button
-                  title={item.receiver_name}
-                  onPress={() => this.setSavedvalues(item)}
-                />
-              )}
-              keyExtractor={item => item.id.toString()}
+      <KeyboardAwareScrollView>
+        <View style={{ flex: 1 }}>
+          {this.state.isLoaded ? (
+            <ActivityIndicator
+              style={{ flex: 1, justifyContent: "center" }}
+              size="large"
+              color="#37A8D1"
             />
-            <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
-              {I18n.t("NewBeneficiary")}
-            </FormLabel>
-            <Form>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormName")}
-                </Label>
+          ) : (
+            <ScrollView contentContainerStyle={styles.contentContainer}>
+              <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+                {I18n.t("SavedBeneficiaryData")}
+              </FormLabel>
 
-                <Input
-                  onChangeText={receiver_name =>
-                    this.setState({ receiver_name })
-                  }
-                  value={this.state.receiver_name}
-                />
-              </Item>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormMobile")}
-                </Label>
-                <Input
-                  onChangeText={receiver_mobile =>
-                    this.setState({ receiver_mobile })
-                  }
-                  value={String(this.state.receiver_mobile)}
-                  keyboardType="number-pad"
-                />
-              </Item>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormCivilID")}
-                </Label>
-                <Input
-                  onChangeText={civil_id => this.setState({ civil_id })}
-                  value={String(this.state.civil_id)}
-                  keyboardType="number-pad"
-                />
-              </Item>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormAddress")}
-                </Label>
-                <Input
-                  onChangeText={receiver_address =>
-                    this.setState({ receiver_address })
-                  }
-                  value={this.state.receiver_address}
-                />
-              </Item>
-              <Modal
-                animationType="slide"
-                transparent={false}
-                presentationStyle="fullScreen"
-                visible={this.state.modalVisible}
-                onRequestClose={() => {
-                  Alert.alert("Modal has been closed.");
-                }}
-              >
-                <View style={{ marginTop: 52 }}>
-                  <View style={styles.container}>
-                    <MapView
-                      region={{
-                        latitude: this.state.origin.latitude,
-                        longitude: this.state.origin.longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421
-                      }}
-                      style={{ ...StyleSheet.absoluteFillObject }}
-                    >
-                      <MapView.Marker
-                        draggable
-                        coordinate={this.state.origin}
-                        onDragEnd={e =>
-                          this.setState({ location: e.nativeEvent.coordinate })
-                        }
-                      />
+              <FlatList
+                horizontal
+                data={this.state.savedData}
+                showsVerticalScrollIndicator={false}
+                style={{ backgroundColor: "white" }}
+                renderItem={({ item }) => (
+                  <Button
+                    title={item.receiver_name}
+                    onPress={() => this.setSavedvalues(item)}
+                  />
+                )}
+                keyExtractor={item => item.id.toString()}
+              />
+              <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+                {I18n.t("NewBeneficiary")}
+              </FormLabel>
+              <Form>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormName")}
+                  </Label>
 
-                      <GooglePlacesAutocomplete
-                        placeholder="Search the place where you want to go.."
-                        minLength={2} // minimum length of text to search
-                        autoFocus={false}
-                        returnKeyType="search" // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-                        listViewDisplayed="false" // true/false/undefined
-                        fetchDetails
-                        renderDescription={row => row.description} // custom description render
-                        onPress={(data, details = null) =>
-                          // 'details' is provided when fetchDetails = true
-                          this.handleSearch(data, details)
-                        }
-                        getDefaultValue={() => ""}
-                        query={{
-                          // available options: https://developers.google.com/places/web-service/autocomplete
-                          key: GOOGLE_KEY,
-                          language: "en" // language of the results
-                        }}
-                        styles={{
-                          textInputContainer: {
-                            width: "100%"
-                          },
-                          description: {
-                            fontWeight: "bold"
-                          },
-                          predefinedPlacesDescription: {
-                            color: "#1faadb"
-                          }
-                        }}
-                        GooglePlacesSearchQuery={{
-                          // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
-                          types: "country"
-                        }}
-                        debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
-                      />
-                    </MapView>
-                    <TouchableHighlight
-                      onPress={() => {
-                        this.setModalVisible(!this.state.modalVisible);
-                      }}
-                    >
-                      <Text>Close Map</Text>
-                    </TouchableHighlight>
-                  </View>
-                </View>
-              </Modal>
-              <TouchableHighlight
-                onPress={() => {
-                  this.setModalVisible(true);
-                }}
-              >
-                <FormLabel
-                  labelStyle={{ textAlign: "left", fontWeight: "bold" }}
+                  <Input
+                    onChangeText={receiver_name =>
+                      this.setState({ receiver_name })
+                    }
+                    value={this.state.receiver_name}
+                  />
+                </Item>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormMobile")}
+                    <Label style={{ color: "red", fontSize: 10 }}>
+                      {this.state.errorMobile}
+                    </Label>
+                  </Label>
+
+                  <Input
+                    onChangeText={receiver_mobile =>
+                      this.setState({ receiver_mobile })
+                    }
+                    value={String(this.state.receiver_mobile)}
+                    keyboardType="number-pad"
+                    maxLength={8}
+                    onBlur={() => {
+                      if (this.state.receiver_mobile.length < 8) {
+                        this.setState({
+                          errorMobile: "(Minimum 8 Digits Required)"
+                        });
+                      } else {
+                        this.setState({
+                          errorMobile: ""
+                        });
+                      }
+                    }}
+                  />
+                </Item>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormCivilID")}
+                    <Label style={{ color: "red", fontSize: 10 }}>
+                      {this.state.errorCivilID}
+                    </Label>
+                  </Label>
+                  <Input
+                    onChangeText={civil_id => this.setState({ civil_id })}
+                    value={String(this.state.civil_id)}
+                    keyboardType="number-pad"
+                    maxLength={12}
+                    onBlur={() => {
+                      if (this.state.civil_id.length < 12) {
+                        this.setState({
+                          errorCivilID: "(Minimum 12 Digits Required)"
+                        });
+                      } else {
+                        this.setState({
+                          errorCivilID: ""
+                        });
+                      }
+                    }}
+                  />
+                </Item>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormAddress")}
+                  </Label>
+                  <Input
+                    onChangeText={receiver_address =>
+                      this.setState({ receiver_address })
+                    }
+                    value={this.state.receiver_address}
+                  />
+                </Item>
+                <Modal
+                  animationType="slide"
+                  transparent={false}
+                  presentationStyle="fullScreen"
+                  visible={this.state.modalVisible}
+                  onRequestClose={() => {
+                    Alert.alert("Modal has been closed.");
+                  }}
                 >
-                  Set Delivery Location
-                </FormLabel>
-              </TouchableHighlight>
-              <Item floatingLabel>
-                <Label style={{ textAlign: "left" }}>
-                  {I18n.t("FormAmount")}
-                </Label>
-                <Input
-                  onChangeText={amount => this.setState({ amount })}
-                  value={this.state.amount}
-                  keyboardType="number-pad"
-                />
-              </Item>
-            </Form>
-            <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
-              Saved User Details
-            </FormLabel>
+                  <View style={{ marginTop: 52 }}>
+                    <View style={styles.container}>
+                      <MapView
+                        region={{
+                          latitude: this.state.origin.latitude,
+                          longitude: this.state.origin.longitude,
+                          latitudeDelta: 0.0922,
+                          longitudeDelta: 0.0421
+                        }}
+                        style={{ ...StyleSheet.absoluteFillObject }}
+                      >
+                        <MapView.Marker
+                          draggable
+                          coordinate={this.state.origin}
+                          onDragEnd={e =>
+                            this.setState({
+                              location: e.nativeEvent.coordinate
+                            })
+                          }
+                        />
 
-            <RadioForm
-              radio_props={this.state.saveProps}
-              initial={0}
-              formHorizontal={true}
-              onPress={saveSelected => {
-                this.setState({ saveSelected: saveSelected }, () =>
-                  console.log(
-                    this.state.saveSelected,
-                    "this.state.saveSelected"
-                  )
-                );
-              }}
-            />
+                        <GooglePlacesAutocomplete
+                          placeholder="Search the place where you want to go.."
+                          minLength={2} // minimum length of text to search
+                          autoFocus={false}
+                          returnKeyType="search" // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
+                          listViewDisplayed="false" // true/false/undefined
+                          fetchDetails
+                          renderDescription={row => row.description} // custom description render
+                          onPress={(data, details = null) =>
+                            // 'details' is provided when fetchDetails = true
+                            this.handleSearch(data, details)
+                          }
+                          getDefaultValue={() => ""}
+                          query={{
+                            // available options: https://developers.google.com/places/web-service/autocomplete
+                            key: GOOGLE_KEY,
+                            language: "en" // language of the results
+                          }}
+                          styles={{
+                            textInputContainer: {
+                              width: "100%"
+                            },
+                            description: {
+                              fontWeight: "bold"
+                            },
+                            predefinedPlacesDescription: {
+                              color: "#1faadb"
+                            }
+                          }}
+                          GooglePlacesSearchQuery={{
+                            // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
+                            types: "country"
+                          }}
+                          debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
+                        />
+                      </MapView>
+                      <TouchableHighlight
+                        onPress={() => {
+                          this.setModalVisible(!this.state.modalVisible);
+                        }}
+                      >
+                        <Text>Close Map</Text>
+                      </TouchableHighlight>
+                    </View>
+                  </View>
+                </Modal>
+                <TouchableHighlight
+                  onPress={() => {
+                    this.setModalVisible(true);
+                  }}
+                >
+                  <FormLabel
+                    labelStyle={{ textAlign: "left", fontWeight: "bold" }}
+                  >
+                    {I18n.t("SetDeliveryLocation")}
+                  </FormLabel>
+                </TouchableHighlight>
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormAmount")}
+                  </Label>
+                  <Input
+                    onChangeText={amount => this.setState({ amount })}
+                    value={this.state.amount}
+                    keyboardType="number-pad"
+                    maxLength={4}
+                  />
+                </Item>
+              </Form>
+              <FormLabel labelStyle={{ textAlign: "left", fontWeight: "bold" }}>
+                {I18n.t("SaveUserDetails")}
+              </FormLabel>
 
-            <RadioForm
-              radio_props={this.state.chargesProps}
-              initial={0}
-              onPress={charges => {
-                this.setState({ charges: charges }, () =>
-                  console.log(this.state.charges)
-                );
-              }}
-            />
-            <Button
-              title={I18n.t("FormPay")}
-              buttonStyle={{
-                backgroundColor: "#37A8D1",
-                borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 5
-              }}
-              onPress={() => this.handleClick()}
-            />
+              <RadioForm
+                radio_props={this.state.saveProps}
+                initial={0}
+                formHorizontal={true}
+                onPress={saveSelected => {
+                  this.setState({ saveSelected: saveSelected }, () =>
+                    console.log(
+                      this.state.saveSelected,
+                      "this.state.saveSelected"
+                    )
+                  );
+                }}
+              />
 
-            <Text style={{ textAlign: "center", color: "red", paddingTop: 10 }}>
-              {this.state.errorText}
-            </Text>
-          </ScrollView>
-        )}
-      </View>
+              <RadioForm
+                radio_props={this.state.chargesProps}
+                initial={0}
+                onPress={charges => {
+                  this.setState({ charges: charges }, () =>
+                    console.log(this.state.charges)
+                  );
+                }}
+              />
+              <Button
+                title={I18n.t("FormPay")}
+                buttonStyle={{
+                  backgroundColor: "#37A8D1",
+                  borderColor: "transparent",
+                  borderWidth: 0,
+                  borderRadius: 5
+                }}
+                onPress={() => this.handleClick()}
+              />
+
+              <Text
+                style={{ textAlign: "center", color: "red", paddingTop: 10 }}
+              >
+                {this.state.errorText}
+              </Text>
+            </ScrollView>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
     );
   }
 }

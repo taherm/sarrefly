@@ -115,7 +115,7 @@ export class Home extends Component {
               </TouchableOpacity>
             </Col>
           </Row>
-          <Hr lineColor="black" width={1} text="متابعة الطلبات" />
+          <Hr lineColor="black" width={1} text={I18n.t("UserOrders")} />
           <Row>
             <Orders
               navigation={this.props.navigation}
