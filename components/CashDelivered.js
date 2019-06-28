@@ -110,7 +110,7 @@ class CashDelivered extends Component {
                   />
                 </TouchableOpacity>
               ) : (
-                <Text> hello</Text>
+                <Text style={{ fontSize: 21 }}> Advertisement</Text>
               )}
             </Col>
           </Row>

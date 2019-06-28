@@ -33,8 +33,9 @@
   "SaveUserDetails": "الإحتفاظ بالبيانات ",
   "UserOrders": "متابعة الطلبات",
   "SetDeliveryLocation": "إختر موقع التوصيل",
-  "Yes": "",
-  "No": "",
+  "Yes": "نعم",
+  "No": "لا",
   "WU": "ويستيرن يونيون",
-  "SelectCountry": "حدد الدولة"
+  "SelectCountry": "حدد الدولة",
+  "InputCountry": "أدخل البلد"
 }

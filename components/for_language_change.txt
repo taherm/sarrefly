@@ -1,0 +1,10 @@
+ if (I18nManager.isRTL != true) {
+      I18nManager.allowRTL(true);
+      I18nManager.forceRTL(true);
+        Util.reload();
+    }
+    else{
+      I18nManager.allowRTL(true);
+      I18nManager.forceRTL(true);
+        Util.reload();
+    }

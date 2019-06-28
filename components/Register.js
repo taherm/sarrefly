@@ -58,7 +58,7 @@ export class Register extends Component {
     } else {
       try {
         axios
-          .post(URL + "/user", {
+          .post(URL + "/newuser", {
             name: this.state.username,
             email: this.state.email,
             password: this.state.password,
@@ -75,6 +75,7 @@ export class Register extends Component {
                 .substring(2, 15)
           })
           .then(response => {
+            console.log(response);
             if (response.status == "201") {
               alert("Account Created Successfully!");
 
@@ -131,7 +132,7 @@ export class Register extends Component {
 
         <TextInput
           // Adding hint in Text Input using Place holder.
-          placeholder={I18n.t("FormCountry")}
+          placeholder={I18n.t("InputCountry")}
           onChangeText={country => this.setState({ country })}
           style={{ textAlign: "center", height: 50 }}
         />

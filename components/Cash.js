@@ -109,7 +109,7 @@ class Cash extends Component {
     this.setState({ receiver_address: item.receiver_address });
     this.setState({ civil_id: item.civil_id });
     this.setState({ country: item.country });
-    this.setState({ amount: item.amount });
+    //  this.setState({ amount: item.amount });
   }
 
   handleSearch(data, details) {
@@ -398,7 +398,7 @@ class Cash extends Component {
               <RadioForm
                 radio_props={this.state.saveProps}
                 initial={0}
-                formHorizontal={true}
+                formHorizontal={false}
                 onPress={saveSelected => {
                   this.setState({ saveSelected: saveSelected }, () =>
                     console.log(

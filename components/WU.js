@@ -100,7 +100,7 @@ class WU extends Component {
     this.setState({ receiver_address: item.receiver_address });
     this.setState({ civil_id: item.civil_id });
     this.setState({ country: item.country });
-    this.setState({ amount: item.amount });
+    // this.setState({ amount: item.amount });
   }
 
   handleSearch(data, details) {
@@ -120,6 +120,10 @@ class WU extends Component {
       this.setState({ errorText: "Please Enter Receiver Mobile" });
     } else if (this.state.receiver_mobile.length < 8) {
       this.setState({ errorText: "Enter Minimum 8 Digits for Mobile" });
+    } else if (this.state.civil_id == "") {
+      this.setState({ errorText: "Please Enter Civil ID!" });
+    } else if (this.state.civil_id.length < 12) {
+      this.setState({ errorText: "Enter Minimum 12 Digits for Civil ID" });
     } else if (this.state.receiver_address == "") {
       this.setState({ errorText: "Please Enter Receiver Address!" });
     } else if (this.state.amount == "") {
@@ -134,7 +138,8 @@ class WU extends Component {
             receiver_mobile: this.state.receiver_mobile,
             receiver_address: this.state.receiver_address,
             amount: this.state.amount,
-
+            civil_id: this.state.civil_id,
+            country: this.state.country,
             order_type: this.state.order_type,
             status: "pending",
             saved: this.state.saveSelected,
@@ -242,7 +247,31 @@ class WU extends Component {
                     }}
                   />
                 </Item>
-
+                <Item floatingLabel>
+                  <Label style={{ textAlign: "left" }}>
+                    {I18n.t("FormCivilID")}
+                    <Label style={{ color: "red", fontSize: 10 }}>
+                      {this.state.errorCivilID}
+                    </Label>
+                  </Label>
+                  <Input
+                    onChangeText={civil_id => this.setState({ civil_id })}
+                    value={String(this.state.civil_id)}
+                    keyboardType="number-pad"
+                    maxLength={12}
+                    onBlur={() => {
+                      if (this.state.civil_id.length < 12) {
+                        this.setState({
+                          errorCivilID: "(Minimum 12 Digits Required)"
+                        });
+                      } else {
+                        this.setState({
+                          errorCivilID: ""
+                        });
+                      }
+                    }}
+                  />
+                </Item>
                 <Item floatingLabel>
                   <Label style={{ textAlign: "left" }}>
                     {I18n.t("FormAddress")}
@@ -288,7 +317,7 @@ class WU extends Component {
               <RadioForm
                 radio_props={this.state.saveProps}
                 initial={0}
-                formHorizontal={true}
+                formHorizontal={false}
                 onPress={saveSelected => {
                   this.setState({ saveSelected: saveSelected }, () =>
                     console.log(
