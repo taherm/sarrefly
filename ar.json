@@ -37,5 +37,6 @@
   "No": "لا",
   "WU": "ويستيرن يونيون",
   "SelectCountry": "حدد الدولة",
-  "InputCountry": "أدخل البلد"
+  "InputCountry": "أدخل البلد",
+  "LocationSelected": "الموقع المحدد"
 }

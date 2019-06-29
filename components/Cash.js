@@ -376,7 +376,9 @@ class Cash extends Component {
                   <FormLabel
                     labelStyle={{ textAlign: "left", fontWeight: "bold" }}
                   >
-                    {I18n.t("SetDeliveryLocation")}
+                    {this.state.location["latitude"] != ""
+                      ? I18n.t("LocationSelected")
+                      : I18n.t("SetDeliveryLocation")}
                   </FormLabel>
                 </TouchableHighlight>
                 <Item floatingLabel>

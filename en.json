@@ -37,5 +37,6 @@
   "No": "No",
   "WU": "WU",
   "SelectCountry": "Select Country",
-  "InputCountry": "Enter Country"
+  "InputCountry": "Enter Country",
+  "LocationSelected": "Location Selected"
 }
