@@ -22,7 +22,7 @@ import { AsyncStorage } from "react-native";
 export default class Login extends Component {
   constructor(props) {
     super(props);
-    I18nManager.forceRTL(true);
+    // I18nManager.forceRTL(true);
     this.state = {
       username: "",
       password: "",
@@ -124,6 +124,22 @@ export default class Login extends Component {
           }}
           onPress={() => {
             this.props.navigation.navigate("Register");
+          }}
+        />
+        <Button
+          style={{
+            paddingTop: 21
+          }}
+          title="Change Language"
+          buttonStyle={{
+            backgroundColor: "#37A8D1",
+            borderColor: "transparent",
+            borderWidth: 0,
+            borderRadius: 5
+          }}
+          onPress={() => {
+            AsyncStorage.removeItem("lang");
+            this.props.navigation.navigate("Language");
           }}
         />
         <Text

@@ -10,7 +10,7 @@ import {
   Button,
   Text
 } from "react-native";
-import { Constants } from "expo";
+import { Constants, Util } from "expo";
 import "@expo/vector-icons";
 import I18n from "ex-react-native-i18n";
 
@@ -32,7 +32,8 @@ import { AsyncStorage } from "react-native";
 export class Language extends Component {
   constructor(props) {
     super(props);
-    I18nManager.forceRTL(true);
+    this._bootstrapAsync();
+    // I18nManager.forceRTL(true);
     this.state = {
       username: "",
       password: "",
@@ -42,12 +43,21 @@ export class Language extends Component {
     };
   }
 
+  _bootstrapAsync = async () => {
+    const userLanguage = await AsyncStorage.getItem("lang");
+    //  console.log("the language in constructor is:" + userLanguage);
+    if (userLanguage != "") {
+      I18n.locale = userLanguage;
+      this.props.navigation.navigate("Login");
+    }
+  };
+
   componentWillMount() {
     I18n.initAsync();
-
-    _storeData = async () => {
+    _storeLang = async lang => {
       try {
-        AsyncStorage.setItem("lang", "en");
+        //    console.log("the language set is:" + lang);
+        AsyncStorage.setItem("lang", lang);
       } catch (error) {
         alert("error in async storage");
       }
@@ -59,16 +69,20 @@ export class Language extends Component {
       <View style={styles.container}>
         <TouchableOpacity
           onPress={() => {
-            I18n.locale = "ar";
-            this.props.navigation.navigate("Login");
+            _storeLang("ar");
+            I18nManager.allowRTL(true);
+            I18nManager.forceRTL(true);
+            Util.reload();
           }}
         >
           <Text style={{ fontSize: 31 }}> العربية </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            I18n.locale = "en";
-            this.props.navigation.navigate("Login");
+            _storeLang("en");
+            I18nManager.allowRTL(false);
+            I18nManager.forceRTL(false);
+            Util.reload();
           }}
         >
           <Text style={{ fontSize: 31 }}> English </Text>
@@ -111,7 +125,9 @@ export const RootStack = createStackNavigator(
     Login: {
       screen: Login,
       navigationOptions: {
-        drawerLabel: () => null
+        drawerLabel: () => null,
+        headerLeft: null,
+        gesturesEnabled: false
       }
     },
     Logout: {
